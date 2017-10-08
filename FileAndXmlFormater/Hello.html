@@ -1,0 +1,103 @@
+<html>
+
+<head>
+<title>The jQuery Example</title>
+<style>
+table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2;}
+
+tr:hover {background-color: #ddd;}
+
+
+</style>
+<script type="text/javascript"
+	src="http://code.jquery.com/jquery-1.7.2.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		function displayInTreeview(contents, i) {
+
+			try {
+				var tree = $.parseXML(contents);
+				 $('#column2_'+i).append('<ul id="treeView_'+i+'"></ul>' );
+				traverse($('#treeView_'+i), tree.firstChild)
+
+				$('<b>–<\/b>').prependTo('#treeView_'+i+' li:has(li)').click(function() {
+
+					var sign = $(this).text()
+					if (sign == "–")
+						$(this).text('+').next().children().hide()
+					else
+						$(this).text('–').next().children().show()
+				});
+			} catch (err) {
+
+			}
+
+		}
+		function traverse(node, tree) {
+
+			var children = $(tree).children()
+			node.append(tree.nodeName)
+			if (children.length) {
+
+				var ul = $("<ul>").appendTo(node)
+				children.each(function() {
+					var li = $('<li>').appendTo(ul)
+					traverse(li, this)
+				})
+			} else {
+
+				$('<ul><li>' + $(tree).text() + '<\/li><\/ul>').appendTo(node)
+			}
+
+		}
+		$('input[type="file"]').change(function(e) {
+			var selectedFile = e.target.files[0];
+			var reader = new FileReader();
+
+			reader.onload = function(event) {
+				$('#here_table').append(  '<table>' );
+				var txt = event.target.result;
+				var lines = txt.split("\n");
+				for (var i = 0, len = lines.length; i < len; i++) {
+					var str = lines[i];
+					var n = str.indexOf(" ");
+					var column1 = $.trim(str.substring(0, n));
+					var column2 = $.trim(str.substring(n));
+					 $('#here_table').append( '<tr><td>' + column1+ '</td><td id="column2_'+i+'">' + column2+ '</td></tr>' );
+					 displayInTreeview(column2,i);
+				}
+				 $('#here_table').append(  '</table>' );
+
+			};
+			reader.readAsText(selectedFile);
+		});
+		$('#btn').click(function(e) {
+			var str = "Hello                 world, welcome to the universe.";
+			var n = str.indexOf(" ");
+			var column1 = str.substring(0, n) + $.trim(str.substring(n));
+		
+		});
+
+	});
+</script>
+</head>
+
+<body>
+	<input type="file">
+	<ul id="treeView"></ul>
+	<div id="here_table"></div>
+</body>
+
+</html>
